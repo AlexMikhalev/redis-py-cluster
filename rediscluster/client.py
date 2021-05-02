@@ -504,6 +504,10 @@ class RedisCluster(Redis):
         # OBJECT command uses a special keyword as first positional argument
         if command == 'OBJECT':
             key = args[2]
+        
+        #adding RedisGears specific commands
+        if command =='RG.TRIGGER':
+            key = args[2]
 
         return self.connection_pool.nodes.keyslot(key)
 
@@ -523,12 +527,6 @@ class RedisCluster(Redis):
         """
         command = args[0]
         
-        if len(args)>=1:
-            key = args[1]
-            slot = self.connection_pool.nodes.keyslot(key)
-            node = self.connection_pool.get_master_node_by_slot(slot)
-            return [self.connection_pool.get_connection_by_node(node)]
-
         node_flag = self.nodes_flags.get(command)
 
         if node_flag == 'blocked':
