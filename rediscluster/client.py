@@ -519,8 +519,16 @@ class RedisCluster(Redis):
 
     def determine_node(self, *args, **kwargs):
         """
+        Added find node by first key (key to keyslot -> slot->node) 
         """
         command = args[0]
+        
+        if len(args)>=1:
+            key = args[1]
+            slot = self.connection_pool.nodes.keyslot(key)
+            node = self.connection_pool.get_master_node_by_slot(slot)
+            return [self.connection_pool.get_connection_by_node(node)]
+
         node_flag = self.nodes_flags.get(command)
 
         if node_flag == 'blocked':
